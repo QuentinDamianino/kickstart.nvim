@@ -239,7 +239,20 @@ require('lazy').setup({
   --
   --  This is equivalent to:
   --    require('Comment').setup({})
-
+  {
+    'olrtg/nvim-emmet',
+    config = function()
+      vim.keymap.set({ 'n', 'v' }, '<leader>xe', require('nvim-emmet').wrap_with_abbreviation)
+    end,
+  },
+  {
+    'github/copilot.vim',
+    config = function()
+      -- Copilot setup
+      vim.g.copilot_no_tab_map = true
+      vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+    end,
+  },
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
 
@@ -541,6 +554,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
+        intelephense = {},
         -- clangd = {},
         -- gopls = {},
         -- pyright = {},
@@ -583,6 +597,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'intelephense',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -628,12 +643,13 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        php = { 'php-cs-fixer' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        javascript = { { 'prettierd', 'prettier' } },
       },
     },
   },
@@ -655,6 +671,7 @@ require('lazy').setup({
           return 'make install_jsregexp'
         end)(),
         dependencies = {
+          'rafamadriz/friendly-snippets',
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
@@ -665,6 +682,10 @@ require('lazy').setup({
           --   end,
           -- },
         },
+        config = function()
+          require('luasnip.loaders.from_vscode').lazy_load()
+          require('luasnip').filetype_extend('php', { 'laravel' })
+        end,
       },
       'saadparwaiz1/cmp_luasnip',
 
